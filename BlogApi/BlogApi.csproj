@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\PostModels\" />
     <Folder Include="wwwroot\UserImages\" />
+    <Folder Include="wwwroot\PostImages\" />
   </ItemGroup>
 
 </Project>

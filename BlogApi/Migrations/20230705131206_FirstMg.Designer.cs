@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BlogApi.Migrations
 {
     [DbContext(typeof(BlogApiDbContext))]
-    [Migration("20230705073728_FirstMg")]
+    [Migration("20230705131206_FirstMg")]
     partial class FirstMg
     {
         /// <inheritdoc />
@@ -117,7 +117,7 @@ namespace BlogApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("BlogApi.Entities.PostLike", b =>
@@ -144,7 +144,7 @@ namespace BlogApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BlogLikes");
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("BlogApi.Entities.User", b =>

@@ -8,8 +8,8 @@ public sealed class BlogApiDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<CommentLike> CommentLikes => Set<CommentLike>();
-    public DbSet<Post> Blogs => Set<Post>();
-    public DbSet<PostLike> BlogLikes => Set<PostLike>();
+    public DbSet<Post> Posts => Set<Post>();
+    public DbSet<PostLike> PostLikes => Set<PostLike>();
 
     public BlogApiDbContext(DbContextOptions<BlogApiDbContext> options) : base(options)
     {
