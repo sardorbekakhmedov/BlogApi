@@ -8,14 +8,6 @@ public static class SwaggerExtension
     {
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "api",
-                Version = "v1",
-                Description = "Api for",
-                TermsOfService = new Uri("")
-            });
-
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
                 Description = @"JWT Bearer. : \Authorization: Bearer {token}\",

@@ -3,6 +3,7 @@ using BlogApi.Entities;
 using BlogApi.HelperServices;
 using BlogApi.HelperServices.JwtServices;
 using BlogApi.Interfaces;
+using BlogApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Extensions;
@@ -16,11 +17,13 @@ public static class BlogApiExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<UserProvider>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         services.AddDbContext<BlogApiDbContext>(config =>
         {
-            config.UseNpgsql(configuration.GetConnectionString("BlogApiDb"));
+            var connectionString = configuration.GetConnectionString("BlogApiDb");
+            config.UseNpgsql(connectionString);
         });
 
         services.AddScoped<JwtOptions>();

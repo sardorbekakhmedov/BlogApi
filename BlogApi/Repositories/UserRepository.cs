@@ -70,24 +70,26 @@ public class UserRepository : IUserRepository
         throw new Exception("Username or Password incorrect!");
     }
 
-    public async Task<List<User>> GetAllUsersAsync()
+    public async Task<List<UserModel>> GetAllUsersAsync()
     {
-        return await _dbContext.Users.Where(user => !user.IsDeleted).ToListAsync();
-    }
+        var users = await _dbContext.Users.Where(user => !user.IsDeleted).ToListAsync();
 
-    public async Task<User> GetUserAsync(Guid userId)
+        return users.Select(MapToUserModel).ToList();
+    }
+    
+    public async Task<UserModel> GetUserAsync(Guid userId)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.Id == userId && !user.IsDeleted);
-        return user ?? throw new Exception("User not found!");
+        return MapToUserModel(user ?? throw new Exception("User not found!"));
     }
 
-    public async Task<User> GetUserAsync(string userName)
+    public async Task<UserModel> GetUserAsync(string userName)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.UserName == userName && !user.IsDeleted);
-        return user ?? throw new Exception("User not found!");
+        var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.UserName == userName && !user.IsDeleted); 
+        return MapToUserModel(user ?? throw new Exception("User not found!"));
     }
 
-    public async Task<User> UpdateAsync(UpdateUserModel model)
+    public async Task<UserModel> UpdateAsync(UpdateUserModel model)
     {
         var userId = _userProvider.UserId;
         var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.Id == userId && !user.IsDeleted);
@@ -109,7 +111,7 @@ public class UserRepository : IUserRepository
         
         await _dbContext.SaveChangesAsync();
 
-        return user;
+        return MapToUserModel(user);
     }
 
     public async Task DeleteAsync(Guid userId)
@@ -123,7 +125,7 @@ public class UserRepository : IUserRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public UserModel MapToUserModel(User user)
+    private UserModel MapToUserModel(User user)
     {
         var userModel = new UserModel
         {
@@ -135,7 +137,6 @@ public class UserRepository : IUserRepository
             UpdatedDate = user.UpdatedDate,
             CreatedDate = user.CreatedDate,
             ImagePath = user.ImagePath,
-            PasswordHash = user.PasswordHash,
         };
 
         return userModel;

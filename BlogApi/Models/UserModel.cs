@@ -8,7 +8,6 @@ public class UserModel
     public string? LastName { get; set; }
     public required string UserName { get; set; }
     public required string Email { get; set; }
-    public string PasswordHash { get; set; } = null!;
     public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 }

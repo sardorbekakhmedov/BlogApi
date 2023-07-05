@@ -7,16 +7,16 @@ builder.Services.AddBlogApiServices(builder.Configuration);
 
 var app = builder.Build();
 
-/*if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}*/
+}
 
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 
-app.UseAutoMigrateBlogApiDb();  // Auto-migrate
+//app.UseAutoMigrateBlogApiDb();  // Auto-migrate
 
 app.UseHttpsRedirection();
 

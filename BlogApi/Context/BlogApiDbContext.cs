@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Context;
 
-public class BlogApiDbContext : DbContext
+public sealed class BlogApiDbContext : DbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Comment> Comments => Set<Comment>();
@@ -12,5 +12,8 @@ public class BlogApiDbContext : DbContext
     public DbSet<PostLike> BlogLikes => Set<PostLike>();
 
     public BlogApiDbContext(DbContextOptions<BlogApiDbContext> options) : base(options)
-    { }
+    {
+        //Database.EnsureCreated();
+        //Database.Migrate();
+    }
 }
