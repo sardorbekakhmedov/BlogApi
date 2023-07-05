@@ -45,7 +45,7 @@ public class UserController : ControllerBase
 
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> Update(UpdateUserModel model )
+    public async Task<IActionResult> Update([FromForm] UpdateUserModel model )
     {
         return Ok(await _userRepository.UpdateAsync(model));
     }
