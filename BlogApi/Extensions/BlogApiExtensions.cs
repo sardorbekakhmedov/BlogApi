@@ -18,6 +18,7 @@ public static class BlogApiExtensions
         services.AddScoped<UserProvider>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IPostRepository, PostRepository>();
 
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         services.AddDbContext<BlogApiDbContext>(config =>

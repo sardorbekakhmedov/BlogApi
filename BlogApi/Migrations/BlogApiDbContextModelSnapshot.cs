@@ -114,7 +114,7 @@ namespace BlogApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("BlogApi.Entities.PostLike", b =>
@@ -141,7 +141,7 @@ namespace BlogApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BlogLikes");
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("BlogApi.Entities.User", b =>
