@@ -1,0 +1,22 @@
+version: '3.7'
+
+networks:
+  blogapi:
+    driver: bridge
+
+services:
+  blogapi_db:
+    image: postgres:latest
+    container_name: blogapi_container
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - blogapi_db_data:/var/lib/postgresql/data
+    networks:
+      - blogapi
+
+volumes:
+  blogapi_db_data:
