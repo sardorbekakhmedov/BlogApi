@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BlogApi.Models;
+namespace BlogApi.Models.UserModels;
 
 public class CreateUserModel
 {

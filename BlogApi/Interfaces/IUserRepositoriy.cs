@@ -1,5 +1,5 @@
 ﻿using BlogApi.Entities;
-using BlogApi.Models;
+using BlogApi.Models.UserModels;
 
 namespace BlogApi.Interfaces;
 

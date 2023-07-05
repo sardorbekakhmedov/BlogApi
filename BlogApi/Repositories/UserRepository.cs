@@ -2,7 +2,7 @@
 using BlogApi.Entities;
 using BlogApi.HelperServices;
 using BlogApi.Interfaces;
-using BlogApi.Models;
+using BlogApi.Models.UserModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +25,7 @@ public class UserRepository : IUserRepository
 
     public async Task<UserModel> RegisterAsync(CreateUserModel model)
     {
-        if (await _dbContext.Users.AnyAsync(user => user.UserName == model.UserName))
+        if (await _dbContext.Users.AnyAsync(user => user.UserName == model.UserName && !user.IsDeleted))
         {
             throw new Exception("Username already exists!");
         }
@@ -121,6 +121,9 @@ public class UserRepository : IUserRepository
         if (user is null)
             throw new Exception("User not found!");
         
+        if(user.ImagePath is not null)
+            _fileService.DeleteFile(user.ImagePath);
+
         user.IsDeleted = true;
         await _dbContext.SaveChangesAsync();
     }

@@ -11,6 +11,15 @@ public class FileService : IFileService
         return await SaveFileAsync(logoFile, folderName);
     }
 
+    public void DeleteFile(string filePath)
+    {
+        if (File.Exists(Path.Combine(RootFolderName, filePath)))
+        {
+            File.Delete(Path.Combine(RootFolderName, filePath));
+        }
+    }
+
+
     private void CheckDirectory(string folderName)
     {
         if (!Directory.Exists(Path.Combine(RootFolderName, folderName)))
