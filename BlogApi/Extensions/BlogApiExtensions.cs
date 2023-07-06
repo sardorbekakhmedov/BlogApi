@@ -17,20 +17,20 @@ namespace BlogApi.Extensions;
 public static class BlogApiExtensions
 {
     public static void AddBlogApiServices(this IServiceCollection services, IConfiguration configuration)
-    {
-        //services.AddControllers().AddJsonOptions(options =>
-        //{
-        //    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-        //});
+    { 
+        /* services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        });
 
-        //services.AddControllers(options =>
-        //{
-        //    options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
-        //    options.OutputFormatters.Add(new SystemTextJsonOutputFormatter(new JsonSerializerOptions(JsonSerializerDefaults.Web)
-        //    {
-        //        ReferenceHandler = ReferenceHandler.Preserve,
-        //    }));
-        //});
+        services.AddControllers(options =>
+        {
+            options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
+            options.OutputFormatters.Add(new SystemTextJsonOutputFormatter(new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+            }));
+        });*/
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
@@ -39,10 +39,12 @@ public static class BlogApiExtensions
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IUserManager, UserManager>();
         services.AddScoped<IPostManager, PostManager>();
+        services.AddScoped<IPostLikeManager, PostLikeManager>();
         services.AddScoped<ICommentManager, CommentManager>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<IPostLikeRepository, PostLikeRepository>();
 
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         services.AddDbContext<BlogApiDbContext>(config =>
