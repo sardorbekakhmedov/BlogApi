@@ -1,22 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BlogApi.Entities;
 
-namespace BlogApi.Entities;
+namespace BlogApi.Models.CommentModels;
 
-public class Comment
+public class CommentModel
 {
-    [Key]
     public Guid Id { get; set; }
     public required string TextComment { get; set; }
 
-
     public Guid UserId { get; set; }
-    public virtual User User { get; set; } = null!;
 
     public Guid PostId { get; set; }
-    public virtual Post Post { get; set; } = null!;
-
 
     public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-    public virtual List<CommentLike>? CommentLikes { get; set; }
+    public int CommentLikesCount { get; set; }
 }
