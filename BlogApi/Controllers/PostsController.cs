@@ -34,7 +34,7 @@ public class PostsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetPostByIdWithLikes(Guid postId)
     {
-        return Ok(await _postManager.GetPostByIdWithLikesAsync(postId));
+        return Ok(await _postManager.GetPostByIdWithLikesAndCommentsAsync(postId));
     }
 
     [HttpPut("{postId}")]

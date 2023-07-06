@@ -1,4 +1,4 @@
-﻿using BlogApi.Entities;
+﻿using BlogApi.Models.CommentModels;
 
 namespace BlogApi.Models.PostModels;
 
@@ -16,4 +16,5 @@ public class PostModel
     public required Guid UserId { get; set; }
 
     public int LikeCount { get; set; }
+    public virtual List<CommentModel>? Comments { get; set; }
 }

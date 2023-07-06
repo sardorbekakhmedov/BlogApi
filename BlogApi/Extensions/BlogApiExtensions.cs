@@ -7,7 +7,10 @@ using BlogApi.Interfaces.IManagers;
 using BlogApi.Interfaces.IRepositories;
 using BlogApi.Managers;
 using BlogApi.Repositories;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BlogApi.Extensions;
 
@@ -15,6 +18,20 @@ public static class BlogApiExtensions
 {
     public static void AddBlogApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        //services.AddControllers().AddJsonOptions(options =>
+        //{
+        //    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        //});
+
+        //services.AddControllers(options =>
+        //{
+        //    options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
+        //    options.OutputFormatters.Add(new SystemTextJsonOutputFormatter(new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        //    {
+        //        ReferenceHandler = ReferenceHandler.Preserve,
+        //    }));
+        //});
+
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddHttpContextAccessor();

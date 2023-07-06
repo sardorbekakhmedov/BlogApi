@@ -92,7 +92,7 @@ public class CommentManager : ICommentManager
     }
 
 
-    private CommentModel MapToCommentModel(Comment comment)
+    public CommentModel MapToCommentModel(Comment comment)
     {
         var commentModel = new CommentModel
         {

@@ -7,7 +7,7 @@ public interface IPostManager
     Task<PostModel> AddNewPostAsync(CreatePostModel model);
     Task<List<PostModel>> GetAllPostsAsync();
     Task<PostModel> GetPostByIdAsync(Guid postId);
-    Task<PostModel> GetPostByIdWithLikesAsync(Guid postId);
+    Task<PostModel> GetPostByIdWithLikesAndCommentsAsync(Guid postId);
     Task<PostModel> UpdatePostAsync(Guid postId, UpdatePostModel model);
     Task DeletePostAsync(Guid postId);
 }

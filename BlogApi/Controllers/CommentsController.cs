@@ -8,11 +8,11 @@ namespace BlogApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class CommentController : ControllerBase
+public class CommentsController : ControllerBase
 {
     private readonly ICommentManager _commentManager;
 
-    public CommentController(ICommentManager commentManager)
+    public CommentsController(ICommentManager commentManager)
     {
         _commentManager = commentManager;
     }

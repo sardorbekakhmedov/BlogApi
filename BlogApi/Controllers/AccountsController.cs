@@ -6,11 +6,11 @@ namespace BlogApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AccountController : ControllerBase
+public class AccountsController : ControllerBase
 {
     private readonly IUserManager _userManager;
 
-    public AccountController(IUserManager userManager)
+    public AccountsController(IUserManager userManager)
     {
         _userManager = userManager;
     }

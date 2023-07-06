@@ -30,11 +30,14 @@ public class PostRepository : IPostRepository
         return await _dbContext.Posts.FirstOrDefaultAsync(post => post.Id == postId);
     }
 
-    public async Task<Post?> GetPostByIdWithLikesAsync(Guid postId)
+    public async Task<Post?> GetPostByIdWithLikesAndCommentsAsync(Guid postId)
     {
-        return await _dbContext.Posts.Include(post => post.Likes)
+        return await _dbContext.Posts
+            .Include(post => post.Likes)
+            .Include(post => post.Comments)
             .FirstOrDefaultAsync(post => post.Id == postId);
     }
+
     public async Task UpdatePostAsync(Post post)
     {
         _dbContext.Posts.Update(post);

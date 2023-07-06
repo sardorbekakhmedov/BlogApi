@@ -5,7 +5,9 @@ using BlogApi.HelperServices;
 using BlogApi.Interfaces;
 using BlogApi.Interfaces.IManagers;
 using BlogApi.Interfaces.IRepositories;
+using BlogApi.Models.CommentModels;
 using BlogApi.Models.PostModels;
+using System.Xml.Linq;
 
 namespace BlogApi.Managers;
 
@@ -14,11 +16,13 @@ public class PostManager : IPostManager
     private const string PostImagesFolderName = "PostImages";
     private readonly UserProvider _userProvider;
     private readonly IPostRepository _postRepository;
+    private readonly ICommentManager _commentManager;
     private readonly IFileService _fileService;
 
-    public PostManager(IPostRepository postRepository, IFileService fileService, UserProvider userProvider)
+    public PostManager(IPostRepository postRepository, ICommentManager commentManager, IFileService fileService, UserProvider userProvider)
     {
         _postRepository = postRepository;
+        _commentManager = commentManager;
         _fileService = fileService;
         _userProvider = userProvider;
     }
@@ -67,9 +71,9 @@ public class PostManager : IPostManager
         return MapToPostModel(post);
     }
 
-    public async Task<PostModel> GetPostByIdWithLikesAsync(Guid postId)
+    public async Task<PostModel> GetPostByIdWithLikesAndCommentsAsync(Guid postId)
     {
-        var post = await _postRepository.GetPostByIdWithLikesAsync(postId);
+        var post = await _postRepository.GetPostByIdWithLikesAndCommentsAsync(postId);
 
         if (post is null)
             throw new PostNotFoundException();
@@ -123,11 +127,21 @@ public class PostManager : IPostManager
             ImagePath = model.ImagePath,
             ViewCount = model.ViewCount,
             CreatedDate = model.CreatedDate,
-            UpdatedDate = model.UpdatedDate
+            UpdatedDate = model.UpdatedDate,
         };
 
         if (model.Likes is not null)
             postModel.LikeCount = model.Likes.Count;
+
+        if (model.Comments is null)
+            return postModel;
+
+        postModel.Comments = new List<CommentModel>();
+
+        foreach (var comment in model.Comments)
+        {
+            postModel.Comments.Add(_commentManager.MapToCommentModel(comment));
+        }
 
         return postModel;
     }
