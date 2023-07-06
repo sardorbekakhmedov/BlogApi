@@ -2,6 +2,7 @@
 using BlogApi.Models.UserModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BlogApi.Controllers;
 
@@ -11,17 +12,32 @@ namespace BlogApi.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserManager _userManager;
+    private readonly IMemoryCache _memoryCache;
 
-    public UsersController(IUserManager userManager)
+    public UsersController(IUserManager userManager, IMemoryCache memoryCache)
     {
         _userManager = userManager;
+        _memoryCache = memoryCache;
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetAllUsers(int page, int count)
     {
-        return Ok(await _userManager.GetAllUsersAsync());
+        var cacheKey = $"{page}, {count}";
+
+        var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+
+            var users = await _userManager.GetAllUsersAsync();
+
+            users = users.Skip((page - 1) * count).Take(count).ToList();
+
+            return Ok(users);
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("{userId}")]

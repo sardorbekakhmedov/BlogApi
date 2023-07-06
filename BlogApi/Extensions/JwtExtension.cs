@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using BlogApi.Entities;
+using BlogApi.HelperEntities;
 using BlogApi.HelperServices.JwtServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

@@ -18,6 +18,8 @@ if (app.Environment.IsDevelopment())
 
 //app.UseAutoMigrateBlogApiDb();  // Auto-migrate
 
+app.UseHttpContextHelper(); // Custom extension
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

@@ -1,4 +1,5 @@
-﻿using BlogApi.Interfaces.IManagers;
+﻿using BlogApi.Extensions;
+using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.PostModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +26,13 @@ public class PostsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts()
+    public async Task<IActionResult> GetAllPosts(int page, int count)
     {
-        return Ok(await _postManager.GetAllPostsAsync());
+        var posts = await _postManager.GetAllPostsAsync();
+
+        posts = posts.Skip((page - 1) * count).Take(count).ToList();
+
+        return Ok(posts);
     }
 
     [HttpGet("{postId}")]

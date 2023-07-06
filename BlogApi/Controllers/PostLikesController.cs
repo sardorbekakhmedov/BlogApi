@@ -1,6 +1,8 @@
 ﻿using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.PostLikeModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BlogApi.Controllers;
 
@@ -9,10 +11,12 @@ namespace BlogApi.Controllers;
 public class PostLikesController : ControllerBase
 {
     private readonly IPostLikeManager _postLikeManager;
+    private readonly IMemoryCache _memoryCache;
 
-    public PostLikesController(IPostLikeManager postLikeManager)
+    public PostLikesController(IPostLikeManager postLikeManager, IMemoryCache memoryCache)
     {
         _postLikeManager = postLikeManager;
+        _memoryCache = memoryCache;
     }
 
     [HttpPost]
@@ -22,9 +26,22 @@ public class PostLikesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllPostLikes()
+    public async Task<IActionResult> GetAllPostLikes(int page, int count)
     {
-        return Ok(await _postLikeManager.GetAllPostLikesAsync());
+        var cacheKey = $"{page}, {count}";
+
+        var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+
+            var postLikes = await _postLikeManager.GetAllPostLikesAsync();
+
+            postLikes = postLikes.Skip((page - 1) * count).Take(count).ToList();
+
+            return Ok(postLikes);
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("{postLikeId}")]

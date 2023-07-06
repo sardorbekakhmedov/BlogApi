@@ -2,6 +2,8 @@
 using BlogApi.Models.CommentModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BlogApi.Controllers;
 
@@ -11,10 +13,12 @@ namespace BlogApi.Controllers;
 public class CommentsController : ControllerBase
 {
     private readonly ICommentManager _commentManager;
+    private readonly IMemoryCache _memoryCache;
 
-    public CommentsController(ICommentManager commentManager)
+    public CommentsController(ICommentManager commentManager, IMemoryCache memoryCache)
     {
         _commentManager = commentManager;
+        _memoryCache = memoryCache;
     }
 
     [HttpPost]
@@ -25,9 +29,22 @@ public class CommentsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts()
+    public async Task<IActionResult> GetAllPosts(int page, int count)
     {
-        return Ok(await _commentManager.GetAllCommentsAsync());
+        var cacheKey = $"{page}, {count}";
+
+        var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+
+            var comments = await _commentManager.GetAllCommentsAsync();
+
+            comments = comments.Skip((page - 1) * count).Take(count).ToList();
+
+            return Ok(comments);
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("{commentId}")]

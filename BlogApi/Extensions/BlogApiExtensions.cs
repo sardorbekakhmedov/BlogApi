@@ -1,5 +1,5 @@
 ﻿using BlogApi.Context;
-using BlogApi.Entities;
+using BlogApi.HelperEntities;
 using BlogApi.HelperServices;
 using BlogApi.HelperServices.JwtServices;
 using BlogApi.Interfaces;
@@ -7,10 +7,7 @@ using BlogApi.Interfaces.IManagers;
 using BlogApi.Interfaces.IRepositories;
 using BlogApi.Managers;
 using BlogApi.Repositories;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace BlogApi.Extensions;
 
@@ -36,6 +33,7 @@ public static class BlogApiExtensions
         services.AddEndpointsApiExplorer();
         services.AddHttpContextAccessor();
         services.AddScoped<UserProvider>();
+       // services.AddScoped<HttpContextHelper>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IUserManager, UserManager>();
         services.AddScoped<IPostManager, PostManager>();
@@ -67,4 +65,13 @@ public static class BlogApiExtensions
             blogApiDb.Database.Migrate();
         }
     }
+
+    public static void UseHttpContextHelper(this WebApplication app)
+    {
+        var httpContextAccessor = app.Services.GetService<IHttpContextAccessor>();
+
+        if (httpContextAccessor != null)
+            HttpContextHelper.Accessor = httpContextAccessor;
+    }
 }
+
