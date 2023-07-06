@@ -29,9 +29,9 @@ public class CommentsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts(int page, int count)
+    public async Task<IActionResult> GetAllPosts(int commentPage, int commentCount)
     {
-        var cacheKey = $"{page}, {count}";
+        var cacheKey = $"{commentPage}, {commentCount}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -39,7 +39,7 @@ public class CommentsController : ControllerBase
 
             var comments = await _commentManager.GetAllCommentsAsync();
 
-            comments = comments.Skip((page - 1) * count).Take(count).ToList();
+            comments = comments.Skip((commentPage - 1) * commentCount).Take(commentCount).ToList();
 
             return Ok(comments);
         });

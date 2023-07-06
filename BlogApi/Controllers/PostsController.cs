@@ -3,6 +3,7 @@ using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.PostModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BlogApi.Controllers;
 
@@ -12,10 +13,12 @@ namespace BlogApi.Controllers;
 public class PostsController : ControllerBase
 {
     private readonly IPostManager _postManager;
+    private readonly IMemoryCache _memoryCache;
 
-    public PostsController(IPostManager postManager)
+    public PostsController(IPostManager postManager, IMemoryCache memoryCache)
     {
         _postManager = postManager;
+        _memoryCache = memoryCache;
     }
 
     [HttpPost]
@@ -26,13 +29,22 @@ public class PostsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts(int page, int count)
+    public async Task<IActionResult> GetAllPosts(int postPage, int postCount)
     {
-        var posts = await _postManager.GetAllPostsAsync();
+        var cacheKey = $"{postPage}, {postCount}";
 
-        posts = posts.Skip((page - 1) * count).Take(count).ToList();
+        var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
 
-        return Ok(posts);
+            var posts = await _postManager.GetAllPostsAsync();
+
+            posts = posts.Skip((postPage - 1) * postCount).Take(postCount).ToList();
+
+            return Ok(posts);
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("{postId}")]

@@ -1,4 +1,4 @@
-﻿namespace BlogApi.Entities;
+﻿namespace BlogApi.HelperEntities;
 
 
 public class JwtOptions

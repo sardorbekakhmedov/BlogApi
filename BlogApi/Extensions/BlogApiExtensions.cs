@@ -32,6 +32,7 @@ public static class BlogApiExtensions
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddHttpContextAccessor();
+        services.AddMemoryCache();
         services.AddScoped<UserProvider>();
        // services.AddScoped<HttpContextHelper>();
         services.AddScoped<IFileService, FileService>();

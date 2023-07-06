@@ -12,7 +12,7 @@ public static class PagedListHelperExtension
         pageParams ??= new PaginationParams();
 
         HttpContextHelper.AddResponseHeader("X-Pagination", 
-            JsonConvert.SerializeObject(new Pagination(source.Count(), pageParams.Size, pageParams.Page)));
+            JsonConvert.SerializeObject(new Pagination(source.Count, pageParams.Size, pageParams.Page)));
 
         return  source.Skip(pageParams.Size * (pageParams.Page - 1)).Take(pageParams.Size);
     }

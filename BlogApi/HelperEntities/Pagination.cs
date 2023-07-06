@@ -8,4 +8,13 @@ public class Pagination
     public int PageSize { get; }
     public bool HasPreviousPage => CurrentPage < 1;
     public bool HasNextPage => CurrentPage > TotalPages;
+
+    public Pagination(int totalCollectionCount, int pageSize, int pageCount)
+    {
+        CurrentPage = pageCount;
+        PageSize = pageSize;
+        TotalCollectionCount = totalCollectionCount;
+        TotalPages = (int)Math.Ceiling(totalCollectionCount / (double)pageSize);
+    }
+
 }

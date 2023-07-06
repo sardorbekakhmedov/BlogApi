@@ -22,9 +22,9 @@ public class UsersController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllUsers(int page, int count)
+    public async Task<IActionResult> GetAllUsers(int userPage, int userCount)
     {
-        var cacheKey = $"{page}, {count}";
+        var cacheKey = $"{userPage}, {userCount}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -32,7 +32,7 @@ public class UsersController : ControllerBase
 
             var users = await _userManager.GetAllUsersAsync();
 
-            users = users.Skip((page - 1) * count).Take(count).ToList();
+            users = users.Skip((userPage - 1) * userCount).Take(userCount).ToList();
 
             return Ok(users);
         });

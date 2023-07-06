@@ -26,9 +26,9 @@ public class PostLikesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllPostLikes(int page, int count)
+    public async Task<IActionResult> GetAllPostLikes(int postLikePage, int postLikeCount)
     {
-        var cacheKey = $"{page}, {count}";
+        var cacheKey = $"{postLikePage}, {postLikeCount}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -36,7 +36,7 @@ public class PostLikesController : ControllerBase
 
             var postLikes = await _postLikeManager.GetAllPostLikesAsync();
 
-            postLikes = postLikes.Skip((page - 1) * count).Take(count).ToList();
+            postLikes = postLikes.Skip((postLikePage - 1) * postLikeCount).Take(postLikeCount).ToList();
 
             return Ok(postLikes);
         });
