@@ -3,6 +3,9 @@ using BlogApi.Entities;
 using BlogApi.HelperServices;
 using BlogApi.HelperServices.JwtServices;
 using BlogApi.Interfaces;
+using BlogApi.Interfaces.IManagers;
+using BlogApi.Interfaces.IRepositories;
+using BlogApi.Managers;
 using BlogApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +20,8 @@ public static class BlogApiExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<UserProvider>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IUserManager, UserManager>();
+        services.AddScoped<IPostManager, PostManager>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPostRepository, PostRepository>();
 

@@ -9,6 +9,7 @@ public class PostModel
     public required string Content { get; set; }
     public required string Tag { get; set; }
     public string? ImagePath { get; set; }
+    public int ViewCount { get; set; }
     public DateTime UpdatedDate { get; set; }
     public DateTime CreatedDate { get; set; } 
 

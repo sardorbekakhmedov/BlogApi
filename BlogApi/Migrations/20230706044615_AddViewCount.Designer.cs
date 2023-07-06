@@ -3,6 +3,7 @@ using System;
 using BlogApi.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,16 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BlogApi.Migrations
 {
     [DbContext(typeof(BlogApiDbContext))]
-    partial class BlogApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230706044615_AddViewCount")]
+    partial class AddViewCount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.8")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", false)
-                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -31,11 +31,11 @@ namespace BlogApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("TextComment")
                         .IsRequired()
@@ -49,7 +49,7 @@ namespace BlogApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("BlogId");
 
                     b.HasIndex("UserId");
 
@@ -129,11 +129,11 @@ namespace BlogApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("BlogId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("timestamp without time zone");
@@ -143,7 +143,7 @@ namespace BlogApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("BlogId");
 
                     b.HasIndex("UserId");
 
@@ -194,9 +194,9 @@ namespace BlogApi.Migrations
 
             modelBuilder.Entity("BlogApi.Entities.Comment", b =>
                 {
-                    b.HasOne("BlogApi.Entities.Post", "Post")
-                        .WithMany("Comments")
-                        .HasForeignKey("PostId")
+                    b.HasOne("BlogApi.Entities.Post", "Blog")
+                        .WithMany()
+                        .HasForeignKey("BlogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -206,7 +206,7 @@ namespace BlogApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Post");
+                    b.Navigation("Blog");
 
                     b.Navigation("User");
                 });
@@ -243,9 +243,9 @@ namespace BlogApi.Migrations
 
             modelBuilder.Entity("BlogApi.Entities.PostLike", b =>
                 {
-                    b.HasOne("BlogApi.Entities.Post", "Post")
+                    b.HasOne("BlogApi.Entities.Post", "Blog")
                         .WithMany("Likes")
-                        .HasForeignKey("PostId")
+                        .HasForeignKey("BlogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -255,15 +255,13 @@ namespace BlogApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Post");
+                    b.Navigation("Blog");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("BlogApi.Entities.Post", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("Likes");
                 });
 

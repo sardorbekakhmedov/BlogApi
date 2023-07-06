@@ -16,4 +16,10 @@ public sealed class BlogApiDbContext : DbContext
         //Database.EnsureCreated();
         //Database.Migrate();
     }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.UseLazyLoadingProxies();
+    }
 }

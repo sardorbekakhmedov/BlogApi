@@ -1,72 +1,49 @@
 ﻿using BlogApi.Context;
 using BlogApi.Entities;
-using BlogApi.HelperServices;
-using BlogApi.Interfaces;
-using BlogApi.Models.PostModels;
-using BlogApi.Models.UserModels;
-using Microsoft.AspNetCore.Identity;
+using BlogApi.Interfaces.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Repositories;
 
 public class PostRepository : IPostRepository
 {
-    private readonly UserProvider _userProvider;
     private readonly BlogApiDbContext _dbContext;
-    private readonly IFileService _fileService;
 
-    public PostRepository(BlogApiDbContext dbContext, IFileService fileService, UserProvider userProvider)
+    public PostRepository(BlogApiDbContext dbContext)
     {
         _dbContext = dbContext;
-        _fileService = fileService;
-        _userProvider = userProvider;
     }
 
-    public async Task<PostModel> AddNewPostAsync(CreatePostModel model)
+    public async Task CreatePostAsync(Post post)
     {
-        var post = new Post
-        {
-            Tag = model.Tag,
-            Title = model.Title,
-            Content = model.Content,
-            UserId = model.UserId,
-        };
-
-        if (model.Image is not null)
-            post.ImagePath = await _fileService.SaveFileToWwwrootAsync(model.Image, "PostImages");
-
         await _dbContext.Posts.AddAsync(post);
         await _dbContext.SaveChangesAsync();
-
-        return MapToPostModel(post);
     }
 
-    public async Task<List<PostModel>> GetAllPostsAsync()
+    public async Task<List<Post>> GetAllPostsAsync()
     {
-        var posts = await _dbContext.Posts.ToListAsync();
-
-        return posts.Select(MapToPostModel).ToList();
+        return await _dbContext.Posts.ToListAsync();
     }
 
-
-    private PostModel MapToPostModel(Post model)
+    public async Task<Post?> GetPostByIdAsync(Guid postId)
     {
-        var postModel = new PostModel
-        {
-            Id = model.Id,
-            Title = model.Title,
-            Content = model.Content,
-            Tag = model.Tag,
-            UserId = model.UserId,
-            ImagePath = model.ImagePath,
-            CreatedDate = model.CreatedDate,
-            UpdatedDate = model.UpdatedDate
-        };
-
-        if (model.Likes is not null)
-            postModel.LikeCount = model.Likes.Count;
-
-        return postModel;
+        return await _dbContext.Posts.FirstOrDefaultAsync(post => post.Id == postId);
     }
 
+    public async Task<Post?> GetPostByIdWithLikesAsync(Guid postId)
+    {
+        return await _dbContext.Posts.Include(post => post.Likes)
+            .FirstOrDefaultAsync(post => post.Id == postId);
+    }
+    public async Task UpdatePostAsync(Post post)
+    {
+        _dbContext.Posts.Update(post);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeletePostAsync(Post post)
+    {
+        _dbContext.Posts.Remove(post);
+        await _dbContext.SaveChangesAsync();
+    }
 }

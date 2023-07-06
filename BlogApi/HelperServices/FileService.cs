@@ -13,9 +13,9 @@ public class FileService : IFileService
 
     public void DeleteFile(string filePath)
     {
-        if (File.Exists(Path.Combine(RootFolderName, filePath)))
+        if (File.Exists(Path.Combine(Environment.CurrentDirectory, RootFolderName, filePath)))
         {
-            File.Delete(Path.Combine(RootFolderName, filePath));
+            File.Delete(Path.Combine(Environment.CurrentDirectory, RootFolderName, filePath));
         }
     }
 
@@ -28,15 +28,15 @@ public class FileService : IFileService
         }
     }
 
-    private async Task<string> SaveFileAsync(IFormFile logoFile, string folderName)
+    private async Task<string> SaveFileAsync(IFormFile iFormFile, string folderName)
     {
         CheckDirectory(folderName);
 
-        var newFileName = Guid.NewGuid() + Path.GetExtension(logoFile.FileName);
+        var newFileName = Guid.NewGuid() + Path.GetExtension(iFormFile.FileName);
 
         using (var ms = new MemoryStream())
         {
-            await logoFile.CopyToAsync(ms);
+            await iFormFile.CopyToAsync(ms);
             await File.WriteAllBytesAsync(Path.Combine(RootFolderName, folderName, newFileName), ms.ToArray());
         }
 

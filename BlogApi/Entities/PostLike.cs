@@ -2,6 +2,6 @@
 
 public class PostLike : LikeParentClass
 {
-    public Guid BlogId { get; set; }
-    public virtual Post Blog { get; set; } = null!;
+    public Guid PostId { get; set; }
+    public virtual Post Post { get; set; } = null!;
 }

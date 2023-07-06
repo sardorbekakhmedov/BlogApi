@@ -1,15 +1,15 @@
-﻿using BlogApi.Entities;
-using BlogApi.Models.UserModels;
+﻿using BlogApi.Models.UserModels;
 
-namespace BlogApi.Interfaces;
+namespace BlogApi.Interfaces.IManagers;
 
-public interface IUserRepository
+public interface IUserManager
 {
+    Task<UserModel> Profile();
     Task<UserModel> RegisterAsync(CreateUserModel model);
     Task<string> LoginAsync(LoginUserModel model);
     Task<List<UserModel>> GetAllUsersAsync();
-    Task<UserModel> GetUserAsync(Guid userId);
-    Task<UserModel> GetUserAsync(string userName);
+    Task<UserModel> GetUserByIdAsync(Guid userId);
+    Task<UserModel> GetUserByUserNameAsync();
     Task<UserModel> UpdateAsync(UpdateUserModel model);
     Task DeleteAsync(Guid userId);
 }
