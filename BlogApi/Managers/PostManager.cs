@@ -7,7 +7,6 @@ using BlogApi.Interfaces.IManagers;
 using BlogApi.Interfaces.IRepositories;
 using BlogApi.Models.CommentModels;
 using BlogApi.Models.PostModels;
-using System.Xml.Linq;
 
 namespace BlogApi.Managers;
 
@@ -39,7 +38,9 @@ public class PostManager : IPostManager
             Tag = model.Tag,
             Title = model.Title,
             Content = model.Content,
-            UserId = (Guid)userId
+            UserId = (Guid)userId,
+            Likes = new List<PostLike>(),
+            Comments = new List<Comment>()
         };
 
         if (model.Image is not null)
