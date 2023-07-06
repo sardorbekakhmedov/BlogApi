@@ -2,7 +2,7 @@
 
 namespace BlogApi.Entities;
 
-public class LikeParentClass
+public abstract class LikeParentClass
 {
     [Key]
     public Guid Id { get; set; }
