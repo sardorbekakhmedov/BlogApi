@@ -47,7 +47,7 @@ public class PostControllerTests
     public async Task GetAllPosts_Test()
     {
         // Arrange
-        var postFilter = new PostFilter()
+        var postFilter = new PostGetFilter()
         {
             Page = 1,
             Size = 1

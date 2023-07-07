@@ -1,4 +1,5 @@
 ﻿using BlogApi.CustomExceptions.UserExceptions;
+using BlogApi.HelperEntities.Pagination;
 using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.CommentModels;
 using Microsoft.AspNetCore.Authorization;
@@ -27,11 +28,12 @@ public class CommentsController : ControllerBase
         return Ok(await _commentManager.AddNewCommentAsync(model));
     }
 
-    [HttpGet]
+    [HttpPost("pagination")]
+    //[HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts(int commentPage, int commentCount)
+    public async Task<IActionResult> GetAllPosts([FromForm] CommentGetFilter commentGetFilter)
     {
-        var cacheKey = $"{commentPage}, {commentCount}";
+        var cacheKey = $"{commentGetFilter.Page}, {commentGetFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -39,7 +41,7 @@ public class CommentsController : ControllerBase
 
             var comments = await _commentManager.GetAllCommentsAsync();
 
-            comments = comments.Skip((commentPage - 1) * commentCount).Take(commentCount).ToList();
+            comments = comments.Skip((commentGetFilter.Page - 1) * commentGetFilter.Size).Take(commentGetFilter.Size).ToList();
 
             return Ok(comments);
         });
@@ -57,16 +59,6 @@ public class CommentsController : ControllerBase
     [HttpPut("{commentId}")]
     public async Task<IActionResult> UpdatePost(Guid commentId, [FromForm] UpdateCommentModel model)
     {
-        try
-        {
-
-        }
-        catch (PasswordIncorrectException e)
-        {
-            Console.WriteLine(e);
-            return BadRequest(e.Password);
-        }
-
         return Ok(await _commentManager.UpdateCommentAsync(commentId, model));
     }
 

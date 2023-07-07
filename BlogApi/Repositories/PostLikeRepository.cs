@@ -30,6 +30,11 @@ public class PostLikeRepository : IPostLikeRepository
         return await _dbContext.PostLikes.FirstOrDefaultAsync(post => post.Id == postLikeId);
     }
 
+    public async Task<PostLike?> GetPostLikeByUserIdAsync(Guid userId)
+    {
+        return await _dbContext.PostLikes.FirstOrDefaultAsync(post => post.UserId == userId);
+    }
+
     public async Task DeletePostLikeAsync(PostLike postLike)
     {
         _dbContext.PostLikes.Remove(postLike);

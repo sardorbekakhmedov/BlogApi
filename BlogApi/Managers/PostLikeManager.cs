@@ -23,23 +23,32 @@ public class PostLikeManager : IPostLikeManager
         _userProvider = userProvider;
     }
 
-    public async Task<PostLikeModel> AddPostLikeAsync(CreatePostLikeModel model)
+    public async Task<PostLikeModel> AddPostLikeAsync(Guid postId)
     {
         var userId = _userProvider.UserId;
 
         if (userId is null)
             throw new UserNotFoundException();
 
-        var postLike = new PostLike
+        var postLike = await _postLikeRepository.GetPostLikeByUserIdAsync((Guid)userId);
+
+        if  (postLike is null)
         {
-            Id = Guid.NewGuid(),
-            UserId = (Guid)userId,
-            PostId = model.PostId
-        };
+            postLike = new PostLike
+            {
+                Id = Guid.NewGuid(),
+                UserId = (Guid)userId,
+                PostId = postId
+            };
 
-        await _postLikeRepository.CreatePostLikeAsync(postLike);
+            await _postLikeRepository.CreatePostLikeAsync(postLike);
 
-        return MapToPostLikeModel(postLike);
+            return MapToPostLikeModel(postLike);
+        }
+
+        await DeletePostLikeAsync(postLike.Id);
+
+        return new PostLikeModel();
     }
 
     public async Task<List<PostLikeModel>> GetAllPostLikesAsync()

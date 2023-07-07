@@ -1,4 +1,5 @@
-﻿using BlogApi.Interfaces.IManagers;
+﻿using BlogApi.HelperEntities.Pagination;
+using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.PostLikeModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,16 +20,17 @@ public class PostLikesController : ControllerBase
         _memoryCache = memoryCache;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddPostLike([FromForm] CreatePostLikeModel model)
+    [HttpPost("{postId}")]
+    public async Task<IActionResult> AddPostLike(Guid postId)
     {
-        return Ok(await _postLikeManager.AddPostLikeAsync(model));
+        return Ok(await _postLikeManager.AddPostLikeAsync(postId));
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllPostLikes(int postLikePage, int postLikeCount)
+    [HttpPost("pagination")]
+    //[HttpGet]
+    public async Task<IActionResult> GetAllPostLikes([FromForm] PostLikeGetFilter postLikeGetFilter)
     {
-        var cacheKey = $"{postLikePage}, {postLikeCount}";
+        var cacheKey = $"{postLikeGetFilter.Page}, {postLikeGetFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -36,7 +38,7 @@ public class PostLikesController : ControllerBase
 
             var postLikes = await _postLikeManager.GetAllPostLikesAsync();
 
-            postLikes = postLikes.Skip((postLikePage - 1) * postLikeCount).Take(postLikeCount).ToList();
+            postLikes = postLikes.Skip((postLikeGetFilter.Page - 1) * postLikeGetFilter.Size).Take(postLikeGetFilter.Size).ToList();
 
             return Ok(postLikes);
         });

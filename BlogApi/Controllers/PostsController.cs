@@ -34,7 +34,7 @@ public class PostsController : ControllerBase
     [HttpPost("pagination")]
     //[HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts(PostFilter postFilter)
+    public async Task<IActionResult> GetAllPosts([FromForm] PostGetFilter postFilter)
     {
         var cacheKey = $"{postFilter.Page}, {postFilter.Size}";
 

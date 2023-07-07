@@ -1,4 +1,5 @@
-﻿using BlogApi.Interfaces.IManagers;
+﻿using BlogApi.HelperEntities.Pagination;
+using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.UserModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,12 @@ public class UsersController : ControllerBase
         _memoryCache = memoryCache;
     }
 
-    [HttpGet]
+    [HttpPost("pagination")]
+    //[HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllUsers(int userPage, int userCount)
+    public async Task<IActionResult> GetAllUsers([FromForm] UserGetFilter userGetFilter)
     {
-        var cacheKey = $"{userPage}, {userCount}";
+        var cacheKey = $"{userGetFilter.Page}, {userGetFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -32,7 +34,7 @@ public class UsersController : ControllerBase
 
             var users = await _userManager.GetAllUsersAsync();
 
-            users = users.Skip((userPage - 1) * userCount).Take(userCount).ToList();
+            users = users.Skip((userGetFilter.Page - 1) * userGetFilter.Size).Take(userGetFilter.Size).ToList();
 
             return Ok(users);
         });
