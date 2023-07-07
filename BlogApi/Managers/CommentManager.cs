@@ -4,19 +4,24 @@ using BlogApi.HelperServices;
 using BlogApi.Interfaces.IRepositories;
 using BlogApi.Models.CommentModels;
 using BlogApi.CustomExceptions.CommentException;
+using BlogApi.Extensions;
+using BlogApi.HelperEntities.Pagination;
 using BlogApi.Interfaces.IManagers;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Managers;
 
 public class CommentManager : ICommentManager
 {
     private readonly UserProvider _userProvider;
+    private readonly HttpContextHelper _httpContextHelper;
     private readonly ICommentRepository _commentRepository;
 
-    public CommentManager(ICommentRepository commentRepository, UserProvider userProvider)
+    public CommentManager(ICommentRepository commentRepository, UserProvider userProvider, HttpContextHelper httpContextHelper)
     {
         _commentRepository = commentRepository;
         _userProvider = userProvider;
+        _httpContextHelper = httpContextHelper;
     }
 
     public async Task<CommentModel> AddNewCommentAsync(CreateCommentModel model)
@@ -38,17 +43,19 @@ public class CommentManager : ICommentManager
         return MapToCommentModel(comment);
     }
 
-    public async Task<List<CommentModel>> GetAllCommentsAsync()
+    public async Task<IEnumerable<CommentModel>> GetAllCommentsAsync(CommentGetFilter commentGetFilter)
     {
-        var posts = await _commentRepository.GetAllCommentsAsync();
+        var commentsIQueryable = _commentRepository.GetAllComments();
+        var comments = await commentsIQueryable.ToPagedListAsync(commentGetFilter, _httpContextHelper);
 
-        return posts.Select(MapToCommentModel).ToList();
+        return comments.Select(MapToCommentModel).ToList();
     }
 
 
     public async Task<CommentModel> GetCommentByIdAsync(Guid commentId)
     {
-        var comment = await _commentRepository.GetCommentByIdAsync(commentId);
+        var commentIQueryable = _commentRepository.GetCommentById(commentId);
+        var comment = await commentIQueryable.FirstOrDefaultAsync();
 
         if (comment is null)
             throw new CommentNotFoundException();
@@ -57,7 +64,8 @@ public class CommentManager : ICommentManager
 
     public async Task<CommentModel> GetCommentByIdWithLikesAsync(Guid commentId)
     {
-        var comment = await _commentRepository.GetCommentByIdWithLikesAsync(commentId);
+        var commentIQueryable = _commentRepository.GetCommentByIdWithLikes(commentId);
+        var comment = await commentIQueryable.FirstOrDefaultAsync();
 
         if (comment is null)
             throw new CommentNotFoundException();
@@ -67,7 +75,8 @@ public class CommentManager : ICommentManager
 
     public async Task<CommentModel> UpdateCommentAsync(Guid commentId, UpdateCommentModel model)
     {
-        var comment = await _commentRepository.GetCommentByIdAsync(commentId);
+        var commentIQueryable = _commentRepository.GetCommentById(commentId);
+        var comment = await commentIQueryable.FirstOrDefaultAsync();
 
         if (comment == null)
             throw new CommentNotFoundException();
@@ -83,7 +92,8 @@ public class CommentManager : ICommentManager
 
     public async Task DeleteCommentAsync(Guid commentId)
     {
-        var comment = await _commentRepository.GetCommentByIdAsync(commentId);
+        var commentIQueryable = _commentRepository.GetCommentById(commentId);
+        var comment = await commentIQueryable.FirstOrDefaultAsync();
 
         if (comment is not null)
         {

@@ -7,7 +7,7 @@ public interface IUserManager
     Task<UserModel> Profile();
     Task<UserModel> RegisterAsync(CreateUserModel model);
     Task<string> LoginAsync(LoginUserModel model);
-    Task<List<UserModel>> GetAllUsersAsync();
+    Task<IEnumerable<UserModel>> GetAllUsersAsync();
     Task<UserModel> GetUserByIdAsync(Guid userId);
     Task<UserModel> GetUserByUserNameAsync();
     Task<UserModel> UpdateAsync(UpdateUserModel model);

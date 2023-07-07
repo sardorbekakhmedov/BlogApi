@@ -7,7 +7,7 @@ namespace BlogApi.Extensions;
 
 public static class PagedListHelperExtension
 {
-   /* public static async Task<IEnumerable<T>> ToPagedListAsync<T>(this IQueryable<T> source, PaginationParams? pageParams, HttpContextHelper httpContextHelper)
+    public static async Task<IEnumerable<T>> ToPagedListAsync<T>(this IQueryable<T> source, PaginationParams? pageParams, HttpContextHelper httpContextHelper)
     {
         pageParams ??= new PaginationParams();
 
@@ -15,7 +15,7 @@ public static class PagedListHelperExtension
             JsonConvert.SerializeObject(new PaginationMetaData(source.Count(), pageParams.Size, pageParams.Page)));
 
         return await source.Skip(pageParams.Size * (pageParams.Page - 1)).Take(pageParams.Size).ToListAsync();
-    }*/
+    }
 
 
     public static async Task<IEnumerable<T>> ToPagedListAsync<T>(this List<T> source, PaginationParams? pageParams, HttpContextHelper httpContextHelper)

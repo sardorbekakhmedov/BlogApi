@@ -20,28 +20,22 @@ public class PostRepository : IPostRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<Post>> GetAllPostsAsync()
+    public IQueryable<Post> GetAllPosts()
     {
-        return await _dbContext.Posts.ToListAsync();
+        return _dbContext.Posts.AsQueryable();
     }
 
-    //public Task<IQueryable<Post>> GetAllPostsAsync()
-    //{
-    //    return Task.FromResult(_dbContext.Posts.AsQueryable());
-    //}
-
-
-    public async Task<Post?> GetPostByIdAsync(Guid postId)
+    public IQueryable<Post> GetPostById(Guid postId)
     {
-        return await _dbContext.Posts.FirstOrDefaultAsync(post => post.Id == postId);
+        return _dbContext.Posts.Where(post => post.Id == postId);
     }
 
-    public async Task<Post?> GetPostByIdWithLikesAndCommentsAsync(Guid postId)
+    public IQueryable<Post> GetPostByIdWithLikesAndComments(Guid postId)
     {
-        return await _dbContext.Posts
+        return _dbContext.Posts
             .Include(post => post.Likes)
             .Include(post => post.Comments)
-            .FirstOrDefaultAsync(post => post.Id == postId);
+            .Where(post => post.Id == postId);
     }
 
     public async Task UpdatePostAsync(Post post)

@@ -6,6 +6,7 @@ using BlogApi.Interfaces.IManagers;
 using BlogApi.Interfaces.IRepositories;
 using BlogApi.Models.UserModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Managers;
 
@@ -32,7 +33,8 @@ public class UserManager : IUserManager
         if (userId is null)
             throw new UserNotFoundException();
 
-        var user = await _userRepository.GetUserByIdAsync((Guid)userId);
+        var userIQueryable = _userRepository.GetUserById((Guid)userId);
+        var user = await userIQueryable.FirstOrDefaultAsync();
 
         if (user is null)
             throw new UserNotFoundException();
@@ -42,12 +44,15 @@ public class UserManager : IUserManager
 
     public async Task<UserModel> RegisterAsync(CreateUserModel model)
     {
-        if (await _userRepository.GetUserByUserNameAsync(model.UserName) is not null)
+        var userIQueryable = _userRepository.GetUserByUserName(model.UserName);
+        var user = await userIQueryable.FirstOrDefaultAsync();
+
+        if (user is not null)
         {
             throw new UsernameAlreadyExistsException(model.UserName);
         }
 
-        var user = new User
+        var newUser = new User
         {
             FirstName = model.FirstName,
             LastName = model.LastName,
@@ -56,19 +61,20 @@ public class UserManager : IUserManager
             UserName = model.UserName,
         };
 
-        user.PasswordHash = new PasswordHasher<User>().HashPassword(user, model.Password);
+        newUser.PasswordHash = new PasswordHasher<User>().HashPassword(newUser, model.Password);
 
         if (model.Image is not null)
-            user.ImagePath = await _fileService.SaveFileToWwwrootAsync(model.Image, UserImagesFolderName);
+            newUser.ImagePath = await _fileService.SaveFileToWwwrootAsync(model.Image, UserImagesFolderName);
 
-        await _userRepository.CreateUserAsync(user);
+        await _userRepository.CreateUserAsync(newUser);
 
-        return MapToUserModel(user);
+        return MapToUserModel(newUser);
     }
 
     public async Task<string> LoginAsync(LoginUserModel model)
     {
-        var user = await _userRepository.GetUserByUserNameAsync(model.UserName);
+        var userIQueryable = _userRepository.GetUserByUserName(model.UserName);
+        var user = await userIQueryable.FirstOrDefaultAsync();
 
         if (user is null)
             throw new UsernameIncorrectException(model.UserName);
@@ -84,16 +90,19 @@ public class UserManager : IUserManager
         return jwtToken;
     }
 
-    public async Task<List<UserModel>> GetAllUsersAsync()
+    public async Task<IEnumerable<UserModel>> GetAllUsersAsync()
     {
-        var users = await _userRepository.GetAllUsersAsync();
+        var usersIQueryable = _userRepository.GetAllUsers();
+        var users = await usersIQueryable.ToListAsync();
 
         return users.Select(MapToUserModel).ToList();
     }
 
     public async Task<UserModel> GetUserByIdAsync(Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId);
+        var userIQueryable = _userRepository.GetUserById(userId);
+        var user = await userIQueryable.FirstOrDefaultAsync();
+
         return MapToUserModel(user ?? throw new UserNotFoundException());
     }
 
@@ -104,7 +113,9 @@ public class UserManager : IUserManager
         if (userName is null)
             throw new UserNotFoundException();
 
-        var user = await _userRepository.GetUserByUserNameAsync(userName);
+        var userIQueryable = _userRepository.GetUserByUserName(userName);
+        var user = await userIQueryable.FirstOrDefaultAsync();
+
         return MapToUserModel(user ?? throw new UserNotFoundException());
     }
 
@@ -114,8 +125,9 @@ public class UserManager : IUserManager
 
         if (userId is null)
             throw new UserNotFoundException();
-        
-        var user = await _userRepository.GetUserByIdAsync((Guid)userId);
+
+        var userIQueryable = _userRepository.GetUserById((Guid)userId);
+        var user = await userIQueryable.FirstOrDefaultAsync();
 
         if (user is null)
             throw new UserNotFoundException();
@@ -139,7 +151,8 @@ public class UserManager : IUserManager
 
     public async Task DeleteAsync(Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId);
+        var userIQueryable = _userRepository.GetUserById(userId);
+        var user = await userIQueryable.FirstOrDefaultAsync();
 
         if (user is not null)
         {

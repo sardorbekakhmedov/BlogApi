@@ -1,5 +1,7 @@
 ﻿using BlogApi.CustomExceptions.UserExceptions;
+using BlogApi.Extensions;
 using BlogApi.HelperEntities.Pagination;
+using BlogApi.HelperServices;
 using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.CommentModels;
 using Microsoft.AspNetCore.Authorization;
@@ -15,11 +17,13 @@ public class CommentsController : ControllerBase
 {
     private readonly ICommentManager _commentManager;
     private readonly IMemoryCache _memoryCache;
+    private readonly HttpContextHelper _httpContext;
 
-    public CommentsController(ICommentManager commentManager, IMemoryCache memoryCache)
+    public CommentsController(ICommentManager commentManager, IMemoryCache memoryCache, HttpContextHelper httpContext)
     {
         _commentManager = commentManager;
         _memoryCache = memoryCache;
+        _httpContext = httpContext;
     }
 
     [HttpPost]
@@ -28,25 +32,22 @@ public class CommentsController : ControllerBase
         return Ok(await _commentManager.AddNewCommentAsync(model));
     }
 
-    [HttpPost("pagination")]
-    //[HttpGet]
+    [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts([FromForm] CommentGetFilter commentGetFilter)
+    public async Task<IActionResult> GetAllPosts([FromQuery] CommentGetFilter commentGetFilter)
     {
-        var cacheKey = $"{commentGetFilter.Page}, {commentGetFilter.Size}";
+        var cacheKey = $"comment-controller-get, {commentGetFilter.Page}, {commentGetFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromMinutes(1);
 
-            var comments = await _commentManager.GetAllCommentsAsync();
-
-            comments = comments.Skip((commentGetFilter.Page - 1) * commentGetFilter.Size).Take(commentGetFilter.Size).ToList();
+            var comments = await _commentManager.GetAllCommentsAsync(commentGetFilter);
 
             return Ok(comments);
         });
 
-        return Ok(result);
+        return Ok(result?.Value);
     }
 
     [HttpGet("{commentId}")]

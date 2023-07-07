@@ -16,7 +16,7 @@ public static class JwtExtension
 
         var jwtOptions = section.Get<JwtOptions>();
 
-        if (jwtOptions == null)
+        if (jwtOptions is null)
             return;
 
         var signInKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(jwtOptions.SecretKey));

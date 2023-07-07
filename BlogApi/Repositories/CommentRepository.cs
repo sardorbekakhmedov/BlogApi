@@ -20,20 +20,20 @@ public class CommentRepository : ICommentRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<Comment>> GetAllCommentsAsync()
+    public IQueryable<Comment> GetAllComments()
     {
-        return await _dbContext.Comments.ToListAsync();
+        return _dbContext.Comments.AsQueryable();
     }
 
-    public async Task<Comment?> GetCommentByIdAsync(Guid commentId)
+    public IQueryable<Comment> GetCommentById(Guid commentId)
     {
-        return await _dbContext.Comments.FirstOrDefaultAsync(post => post.Id == commentId);
+        return _dbContext.Comments.Where(post => post.Id == commentId);
     }
 
-    public async Task<Comment?> GetCommentByIdWithLikesAsync(Guid commentId)
+    public IQueryable<Comment> GetCommentByIdWithLikesAsync(Guid commentId)
     {
-        return await _dbContext.Comments.Include(post => post.CommentLikes)
-            .FirstOrDefaultAsync(post => post.Id == commentId);
+        return _dbContext.Comments.Include(post => post.CommentLikes)
+            .Where(post => post.Id == commentId);
     }
 
     public async Task UpdateCommentAsync(Comment comment)

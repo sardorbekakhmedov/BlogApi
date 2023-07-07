@@ -20,19 +20,19 @@ public class UserRepository : IUserRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<User>> GetAllUsersAsync()
+    public IQueryable<User> GetAllUsers()
     {
-        return await _dbContext.Users.Where(user => !user.IsDeleted).ToListAsync();
+        return _dbContext.Users.Where(user => !user.IsDeleted);
     }
 
-    public async Task<User?> GetUserByIdAsync(Guid userId)
+    public IQueryable<User> GetUserById(Guid userId)
     {
-        return await _dbContext.Users.FirstOrDefaultAsync(user => user.Id == userId && !user.IsDeleted);
+        return _dbContext.Users.Where(user => user.Id == userId && !user.IsDeleted);
     }
 
-    public async Task<User?> GetUserByUserNameAsync(string userName)
+    public IQueryable<User> GetUserByUserName(string userName)
     {
-        return await _dbContext.Users.FirstOrDefaultAsync(user => user.UserName == userName && !user.IsDeleted);
+        return _dbContext.Users.Where(user => user.UserName == userName && !user.IsDeleted);
     }
 
     public async Task UpdateUserAsync(User user)

@@ -1,8 +1,10 @@
-﻿using BlogApi.Extensions;
+﻿using BlogApi.CustomExceptions.UserExceptions;
+using BlogApi.Extensions;
 using BlogApi.HelperEntities.Pagination;
 using BlogApi.HelperServices;
 using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.PostModels;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,31 +28,45 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddNewPost([FromForm] CreatePostModel model)
+    public async Task<IActionResult> AddNewPost([FromForm] CreatePostModel model,
+        [FromServices] IValidator<CreatePostModel> validator)
     {
-        return Ok(await _postManager.AddNewPostAsync(model));
+        var result = await validator.ValidateAsync(model);
+
+        if (!result.IsValid)
+        {
+            return BadRequest();
+        }
+
+        try
+        {
+            return Ok(await _postManager.AddNewPostAsync(model));
+        }
+        catch (UserNotFoundException e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
-    
-    [HttpPost("pagination")]
-    //[HttpGet]
+
+    [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts([FromForm] PostGetFilter postFilter)
+    public async Task<IActionResult> GetAllPosts([FromQuery] PostGetFilter postFilter)
     {
-        var cacheKey = $"{postFilter.Page}, {postFilter.Size}";
+        var cacheKey = $"posts-controller-get, {postFilter.Page}, {postFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromMinutes(1);
 
-            var posts = await _postManager.GetAllPostsAsync();
+            var posts = await _postManager.GetAllPostsAsync(postFilter);
 
-           // posts = posts.Skip((postFilter.Page - 1) * postFilter.Size).Take(postFilter.Size).ToList();
-
-            return Ok(posts.ToPagedListAsync(postFilter, _contextHelper));
+            return Ok(posts);
         });
 
-        return Ok(result);
+        return Ok(result?.Value);
     }
+
 
     [HttpGet("{postId}")]
     [AllowAnonymous]

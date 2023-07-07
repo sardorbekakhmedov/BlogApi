@@ -26,11 +26,10 @@ public class PostLikesController : ControllerBase
         return Ok(await _postLikeManager.AddPostLikeAsync(postId));
     }
 
-    [HttpPost("pagination")]
-    //[HttpGet]
-    public async Task<IActionResult> GetAllPostLikes([FromForm] PostLikeGetFilter postLikeGetFilter)
+    [HttpGet]
+    public async Task<IActionResult> GetAllPostLikes([FromQuery] PostLikeGetFilter postLikeGetFilter)
     {
-        var cacheKey = $"{postLikeGetFilter.Page}, {postLikeGetFilter.Size}";
+        var cacheKey = $"post-likes-controller-get, {postLikeGetFilter.Page}, {postLikeGetFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -43,7 +42,7 @@ public class PostLikesController : ControllerBase
             return Ok(postLikes);
         });
 
-        return Ok(result);
+        return Ok(result?.Value);
     }
 
     [HttpGet("{postLikeId}")]

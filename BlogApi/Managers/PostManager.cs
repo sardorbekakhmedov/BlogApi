@@ -1,12 +1,15 @@
 ﻿using BlogApi.CustomExceptions.PostException;
 using BlogApi.CustomExceptions.UserExceptions;
 using BlogApi.Entities;
+using BlogApi.Extensions;
+using BlogApi.HelperEntities.Pagination;
 using BlogApi.HelperServices;
 using BlogApi.Interfaces;
 using BlogApi.Interfaces.IManagers;
 using BlogApi.Interfaces.IRepositories;
 using BlogApi.Models.CommentModels;
 using BlogApi.Models.PostModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Managers;
 
@@ -14,16 +17,19 @@ public class PostManager : IPostManager
 {
     private const string PostImagesFolderName = "PostImages";
     private readonly UserProvider _userProvider;
+    private readonly HttpContextHelper _httpContextHelper;
     private readonly IPostRepository _postRepository;
     private readonly ICommentManager _commentManager;
     private readonly IFileService _fileService;
 
-    public PostManager(IPostRepository postRepository, ICommentManager commentManager, IFileService fileService, UserProvider userProvider)
+    public PostManager(IPostRepository postRepository, ICommentManager commentManager, IFileService fileService,
+        UserProvider userProvider, HttpContextHelper httpContextHelper)
     {
         _postRepository = postRepository;
         _commentManager = commentManager;
         _fileService = fileService;
         _userProvider = userProvider;
+        _httpContextHelper = httpContextHelper;
     }
 
     public async Task<PostModel> AddNewPostAsync(CreatePostModel model)
@@ -51,30 +57,36 @@ public class PostManager : IPostManager
         return MapToPostModel(post);
     }
 
-    public async Task<List<PostModel>> GetAllPostsAsync()
+    public async Task<IEnumerable<PostModel>> GetAllPostsAsync(PostGetFilter postFilter)
     {
-        var posts = await _postRepository.GetAllPostsAsync();
+        var postsIQueryable = _postRepository.GetAllPosts();
+
+        if (postFilter.FromDateTime is not null)
+        {
+            postsIQueryable = postsIQueryable.Where(post => post.CreatedDate > postFilter.FromDateTime);
+        }
+
+        if (postFilter.ToDateTime is not null)
+        {
+            postsIQueryable = postsIQueryable.Where(post => post.CreatedDate < postFilter.ToDateTime);
+        }
+
+        if (postFilter.Tag is not null)
+        {
+            postsIQueryable = postsIQueryable.Where(post => post.Tag.Contains(postFilter.Tag));
+        }
+
+        postsIQueryable = postsIQueryable.OrderBy(o => o.CreatedDate);
+
+        var posts = await postsIQueryable.ToPagedListAsync(postFilter, _httpContextHelper);
 
         return posts.Select(MapToPostModel).ToList();
     }
 
-
-    public async Task<PostModel> GetPostByIdAsync(Guid postId)
-    {
-        var post = await _postRepository.GetPostByIdAsync(postId);
-
-        if(post is null)
-            throw new PostNotFoundException();
-
-        post.ViewCount++;
-        await _postRepository.UpdatePostAsync(post);
-
-        return MapToPostModel(post);
-    }
-
     public async Task<PostModel> GetPostByIdWithLikesAndCommentsAsync(Guid postId)
     {
-        var post = await _postRepository.GetPostByIdWithLikesAndCommentsAsync(postId);
+        var postsIQueryable = _postRepository.GetPostByIdWithLikesAndComments(postId);
+        var post = await postsIQueryable.FirstOrDefaultAsync();
 
         if (post is null)
             throw new PostNotFoundException();
@@ -87,7 +99,8 @@ public class PostManager : IPostManager
 
     public async Task<PostModel> UpdatePostAsync(Guid postId, UpdatePostModel model)
     {
-        var post = await _postRepository.GetPostByIdAsync(postId);
+        var postIQueryable = _postRepository.GetPostById(postId);
+        var post = await postIQueryable.FirstOrDefaultAsync();
 
         if (post == null)
             throw new PostNotFoundException();
@@ -107,7 +120,8 @@ public class PostManager : IPostManager
 
     public async Task DeletePostAsync(Guid postId)
     {
-        var post = await _postRepository.GetPostByIdAsync(postId);
+        var postIQueryable = _postRepository.GetPostById(postId);
+        var post = await postIQueryable.FirstOrDefaultAsync();
 
         if (post is not null)
         {

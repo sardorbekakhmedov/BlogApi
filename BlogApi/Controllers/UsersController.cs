@@ -21,12 +21,11 @@ public class UsersController : ControllerBase
         _memoryCache = memoryCache;
     }
 
-    [HttpPost("pagination")]
-    //[HttpGet]
+    [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllUsers([FromForm] UserGetFilter userGetFilter)
+    public async Task<IActionResult> GetAllUsers([FromQuery] UserGetFilter userGetFilter)
     {
-        var cacheKey = $"{userGetFilter.Page}, {userGetFilter.Size}";
+        var cacheKey = $"users-controller-get, {userGetFilter.Page}, {userGetFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
@@ -39,8 +38,9 @@ public class UsersController : ControllerBase
             return Ok(users);
         });
 
-        return Ok(result);
+        return Ok(result?.Value);
     }
+
 
     [HttpGet("{userId}")]
     [AllowAnonymous]

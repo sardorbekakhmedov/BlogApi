@@ -20,19 +20,19 @@ public class PostLikeRepository : IPostLikeRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<PostLike>> GetAllPostLikesAsync()
+    public IQueryable<PostLike> GetAllPostLikes()
     {
-        return await _dbContext.PostLikes.ToListAsync();
+        return _dbContext.PostLikes.AsQueryable();
     }
 
-    public async Task<PostLike?> GetPostLikeByIdAsync(Guid postLikeId)
+    public IQueryable<PostLike> GetPostLikeById(Guid postLikeId)
     {
-        return await _dbContext.PostLikes.FirstOrDefaultAsync(post => post.Id == postLikeId);
+        return _dbContext.PostLikes.Where(post => post.Id == postLikeId);
     }
 
-    public async Task<PostLike?> GetPostLikeByUserIdAsync(Guid userId)
+    public IQueryable<PostLike> GetPostLikeByUserId(Guid userId)
     {
-        return await _dbContext.PostLikes.FirstOrDefaultAsync(post => post.UserId == userId);
+        return _dbContext.PostLikes.Where(post => post.UserId == userId);
     }
 
     public async Task DeletePostLikeAsync(PostLike postLike)

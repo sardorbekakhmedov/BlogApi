@@ -1,25 +1,22 @@
-﻿using BlogApi.CustomExceptions.PostException;
-using BlogApi.CustomExceptions.PostLikeException;
+﻿using BlogApi.CustomExceptions.PostLikeException;
 using BlogApi.CustomExceptions.UserExceptions;
 using BlogApi.Entities;
 using BlogApi.HelperServices;
 using BlogApi.Interfaces.IManagers;
 using BlogApi.Interfaces.IRepositories;
 using BlogApi.Models.PostLikeModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Managers;
 
 public class PostLikeManager : IPostLikeManager
 {
     private readonly IPostLikeRepository _postLikeRepository;
-    private readonly IPostRepository _postRepository;
     private readonly UserProvider _userProvider;
 
-    public PostLikeManager(IPostLikeRepository postLikeRepository, IPostRepository postRepository,
-        UserProvider userProvider)
+    public PostLikeManager(IPostLikeRepository postLikeRepository, UserProvider userProvider)
     {
         _postLikeRepository = postLikeRepository;
-        _postRepository = postRepository;
         _userProvider = userProvider;
     }
 
@@ -30,7 +27,8 @@ public class PostLikeManager : IPostLikeManager
         if (userId is null)
             throw new UserNotFoundException();
 
-        var postLike = await _postLikeRepository.GetPostLikeByUserIdAsync((Guid)userId);
+        var postLikeIQueryable = _postLikeRepository.GetPostLikeByUserId((Guid)userId);
+        var postLike = await postLikeIQueryable.FirstOrDefaultAsync();
 
         if  (postLike is null)
         {
@@ -51,18 +49,20 @@ public class PostLikeManager : IPostLikeManager
         return new PostLikeModel();
     }
 
-    public async Task<List<PostLikeModel>> GetAllPostLikesAsync()
+    public async Task<IEnumerable<PostLikeModel>> GetAllPostLikesAsync()
     {
-        var postLikes = await _postLikeRepository.GetAllPostLikesAsync();
+        var postLikeIQueryable = _postLikeRepository.GetAllPostLikes();
+        var postLikes = await postLikeIQueryable.ToListAsync();
 
         return postLikes.Select(MapToPostLikeModel).ToList();
     }
 
     public async Task<PostLikeModel> GetPostLikeByIdAsync(Guid postLikeId)
     {
-        var postLike = await _postLikeRepository.GetPostLikeByIdAsync(postLikeId);
+        var postLikeIQueryable = _postLikeRepository.GetPostLikeByUserId(postLikeId);
+        var postLike = await postLikeIQueryable.FirstOrDefaultAsync();
 
-        if(postLike is null)
+        if (postLike is null)
             throw new PostLikeNotFoundException();
 
         return MapToPostLikeModel(postLike);
@@ -70,7 +70,8 @@ public class PostLikeManager : IPostLikeManager
 
     public async Task DeletePostLikeAsync(Guid postLikeId)
     {
-        var postLike = await _postLikeRepository.GetPostLikeByIdAsync(postLikeId);
+        var postLikeIQueryable = _postLikeRepository.GetPostLikeByUserId(postLikeId);
+        var postLike = await postLikeIQueryable.FirstOrDefaultAsync();
 
         if (postLike is not null)
         {
