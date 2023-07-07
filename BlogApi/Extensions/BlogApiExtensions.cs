@@ -34,7 +34,7 @@ public static class BlogApiExtensions
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
         services.AddScoped<UserProvider>();
-       // services.AddScoped<HttpContextHelper>();
+        services.AddScoped<HttpContextHelper>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IUserManager, UserManager>();
         services.AddScoped<IPostManager, PostManager>();
@@ -58,21 +58,22 @@ public static class BlogApiExtensions
 
         services.AddSwaggerGenWithToken();
     }
-    public static void UseAutoMigrateBlogApiDb(this WebApplication app)
+
+    /*public static void UseAutoMigrateBlogApiDb(this WebApplication app)
     {
         if (app.Services.GetService<BlogApiDbContext>() != null)
         {
             var blogApiDb = app.Services.GetRequiredService<BlogApiDbContext>();
             blogApiDb.Database.Migrate();
         }
-    }
+    }*/
 
-    public static void UseHttpContextHelper(this WebApplication app)
+    /*public static void UseHttpContextHelper(this WebApplication app)
     {
         var httpContextAccessor = app.Services.GetService<IHttpContextAccessor>();
 
         if (httpContextAccessor != null)
             HttpContextHelper.Accessor = httpContextAccessor;
-    }
+    }*/
 }
 
