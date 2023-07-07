@@ -1,11 +1,11 @@
 ﻿using BlogApi.Entities;
-using BlogApi.Models.PostModels;
 
 namespace BlogApi.Interfaces.IRepositories;
 
 public interface IPostRepository
 {
     Task CreatePostAsync(Post post);
+    //Task<IQueryable<Post>> GetAllPostsAsync();
     Task<List<Post>> GetAllPostsAsync();
     Task<Post?> GetPostByIdAsync(Guid postId);
     Task<Post?> GetPostByIdWithLikesAndCommentsAsync(Guid postId);

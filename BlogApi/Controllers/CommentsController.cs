@@ -1,8 +1,8 @@
-﻿using BlogApi.Interfaces.IManagers;
+﻿using BlogApi.CustomExceptions.UserExceptions;
+using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.CommentModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace BlogApi.Controllers;
@@ -35,7 +35,7 @@ public class CommentsController : ControllerBase
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
-            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+            entry.SlidingExpiration = TimeSpan.FromMinutes(1);
 
             var comments = await _commentManager.GetAllCommentsAsync();
 
@@ -57,6 +57,16 @@ public class CommentsController : ControllerBase
     [HttpPut("{commentId}")]
     public async Task<IActionResult> UpdatePost(Guid commentId, [FromForm] UpdateCommentModel model)
     {
+        try
+        {
+
+        }
+        catch (PasswordIncorrectException e)
+        {
+            Console.WriteLine(e);
+            return BadRequest(e.Password);
+        }
+
         return Ok(await _commentManager.UpdateCommentAsync(commentId, model));
     }
 

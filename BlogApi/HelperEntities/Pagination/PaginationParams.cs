@@ -1,4 +1,4 @@
-﻿namespace BlogApi.HelperEntities;
+﻿namespace BlogApi.HelperEntities.Pagination;
 
 public class PaginationParams
 {

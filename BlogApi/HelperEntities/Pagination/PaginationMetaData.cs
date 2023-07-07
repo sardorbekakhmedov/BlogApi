@@ -1,6 +1,6 @@
-﻿namespace BlogApi.HelperEntities;
+﻿namespace BlogApi.HelperEntities.Pagination;
 
-public class Pagination
+public class PaginationMetaData
 {
     public int CurrentPage { get; }
     public int TotalCollectionCount { get; }
@@ -9,12 +9,11 @@ public class Pagination
     public bool HasPreviousPage => CurrentPage < 1;
     public bool HasNextPage => CurrentPage > TotalPages;
 
-    public Pagination(int totalCollectionCount, int pageSize, int pageCount)
+    public PaginationMetaData(int totalCollectionCount, int pageSize, int pageCount)
     {
         CurrentPage = pageCount;
         PageSize = pageSize;
         TotalCollectionCount = totalCollectionCount;
         TotalPages = (int)Math.Ceiling(totalCollectionCount / (double)pageSize);
     }
-
 }

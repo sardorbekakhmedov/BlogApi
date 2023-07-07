@@ -17,8 +17,7 @@ if (app.Environment.IsDevelopment())
 //app.UseSwaggerUI();
 
 //app.UseAutoMigrateBlogApiDb();  // Auto-migrate
-
-app.UseHttpContextHelper(); // Custom extension
+//app.UseHttpContextHelper(); // Custom extension for pagination
 
 app.UseHttpsRedirection();
 
@@ -28,4 +27,7 @@ app.MapControllers();
 
 app.Run();
 
+
+public partial class Program
+{ }
 

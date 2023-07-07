@@ -25,11 +25,6 @@ public class PostLikeManager : IPostLikeManager
 
     public async Task<PostLikeModel> AddPostLikeAsync(CreatePostLikeModel model)
     {
-        var post = await _postRepository.GetPostByIdAsync(model.PostId);
-
-        if (post is null)
-            throw new PostNotFoundException();
-
         var userId = _userProvider.UserId;
 
         if (userId is null)
@@ -42,12 +37,6 @@ public class PostLikeManager : IPostLikeManager
             PostId = model.PostId
         };
 
-        if (post.Likes is not null)
-            post.Likes.Add(postLike);
-        else
-            post.Likes = new List<PostLike> { postLike };
-
-        await _postRepository.UpdatePostAsync(post);
         await _postLikeRepository.CreatePostLikeAsync(postLike);
 
         return MapToPostLikeModel(postLike);
@@ -76,16 +65,6 @@ public class PostLikeManager : IPostLikeManager
 
         if (postLike is not null)
         {
-            var post = await _postRepository.GetPostByIdAsync(postLike.PostId);
-
-            if (post is not null)
-            {
-                if (post.Likes is not null && post.Likes.Contains(postLike))
-                {
-                    post.Likes.Remove(postLike);
-                    await _postRepository.UpdatePostAsync(post);
-                }
-            }
             await _postLikeRepository.DeletePostLikeAsync(postLike);
         }
     }

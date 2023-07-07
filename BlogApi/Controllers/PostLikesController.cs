@@ -32,7 +32,7 @@ public class PostLikesController : ControllerBase
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
-            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+            entry.SlidingExpiration = TimeSpan.FromMinutes(1);
 
             var postLikes = await _postLikeManager.GetAllPostLikesAsync();
 

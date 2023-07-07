@@ -1,4 +1,6 @@
 ﻿using BlogApi.Extensions;
+using BlogApi.HelperEntities.Pagination;
+using BlogApi.HelperServices;
 using BlogApi.Interfaces.IManagers;
 using BlogApi.Models.PostModels;
 using Microsoft.AspNetCore.Authorization;
@@ -14,11 +16,13 @@ public class PostsController : ControllerBase
 {
     private readonly IPostManager _postManager;
     private readonly IMemoryCache _memoryCache;
+    private readonly HttpContextHelper _contextHelper;
 
-    public PostsController(IPostManager postManager, IMemoryCache memoryCache)
+    public PostsController(IPostManager postManager, IMemoryCache memoryCache, HttpContextHelper contextHelper)
     {
         _postManager = postManager;
         _memoryCache = memoryCache;
+        _contextHelper = contextHelper;
     }
 
     [HttpPost]
@@ -26,22 +30,23 @@ public class PostsController : ControllerBase
     {
         return Ok(await _postManager.AddNewPostAsync(model));
     }
-
-    [HttpGet]
+    
+    [HttpPost("pagination")]
+    //[HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAllPosts(int postPage, int postCount)
+    public async Task<IActionResult> GetAllPosts(PostFilter postFilter)
     {
-        var cacheKey = $"{postPage}, {postCount}";
+        var cacheKey = $"{postFilter.Page}, {postFilter.Size}";
 
         var result = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
         {
-            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+            entry.SlidingExpiration = TimeSpan.FromMinutes(1);
 
             var posts = await _postManager.GetAllPostsAsync();
 
-            posts = posts.Skip((postPage - 1) * postCount).Take(postCount).ToList();
+           // posts = posts.Skip((postFilter.Page - 1) * postFilter.Size).Take(postFilter.Size).ToList();
 
-            return Ok(posts);
+            return Ok(posts.ToPagedListAsync(postFilter, _contextHelper));
         });
 
         return Ok(result);
@@ -49,15 +54,17 @@ public class PostsController : ControllerBase
 
     [HttpGet("{postId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetPostByIdWithLikes(Guid postId)
+    public async Task<IActionResult> GetPostByIdWithLikesAndComments(Guid postId)
     {
-        return Ok(await _postManager.GetPostByIdWithLikesAndCommentsAsync(postId));
+        var post = await _postManager.GetPostByIdWithLikesAndCommentsAsync(postId);
+        return Ok(post);
     }
 
     [HttpPut("{postId}")]
     public async Task<IActionResult> UpdatePost(Guid postId, [FromForm] UpdatePostModel model)
     {
-        return Ok(await _postManager.UpdatePostAsync(postId, model));
+        var post = await _postManager.UpdatePostAsync(postId, model);
+        return Ok(post);
     }
 
     [HttpDelete("{postId}")]

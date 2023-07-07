@@ -2,20 +2,25 @@
 
 public class HttpContextHelper
 {
-    public static IHttpContextAccessor Accessor;
-    public static HttpContext? CurrentContext => Accessor.HttpContext;
+    private readonly IHttpContextAccessor _accessor;
+    public HttpContext? CurrentContext => _accessor.HttpContext;
 
-    public static void AddResponseHeader(string key, string value)
+    public HttpContextHelper(IHttpContextAccessor accessor)
+    {
+        _accessor = accessor;
+    }
+
+    public void AddResponseHeader(string key, string value)
     {
         if (CurrentContext is not null && CurrentContext.Response.Headers.Keys.Contains(key))
         {
             CurrentContext.Response.Headers.Remove(key);
         }
 
-        if (CurrentContext is not null)
-        {
-            CurrentContext.Response.Headers.Add("Access-Control-Expose-Headers", key);
-            CurrentContext.Response.Headers.Add(key, value);
-        }
+        if (CurrentContext is null) 
+            return;
+
+        CurrentContext.Response.Headers.Add("Access-Control-Expose-Headers", key);
+        CurrentContext.Response.Headers.Add(key, value);
     }
 }
